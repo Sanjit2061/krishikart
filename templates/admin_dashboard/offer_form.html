@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}{% if offer %}Edit{% else %}New{% endif %} Offer{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="bg-white rounded-4 shadow-sm p-4">
+                <h4 class="mb-4">{% if offer %}Edit{% else %}New{% endif %} Offer</h4>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Title</label>
+                        <input type="text" name="title" class="form-control" value="{{ offer.title|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Coupon Code</label>
+                        <input type="text" name="code" class="form-control text-uppercase" value="{{ offer.code|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Discount %</label>
+                        <input type="number" step="0.01" name="discount_percent" class="form-control" value="{{ offer.discount_percent|default:'' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea name="description" class="form-control" rows="2">{{ offer.description|default:'' }}</textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold">Valid From</label>
+                            <input type="date" name="valid_from" class="form-control" value="{{ offer.valid_from|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold">Valid Until</label>
+                            <input type="date" name="valid_until" class="form-control" value="{{ offer.valid_until|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="is_active" class="form-check-input" id="is_active" {% if offer.is_active or not offer %}checked{% endif %}>
+                        <label class="form-check-label" for="is_active">Active</label>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 rounded-pill">Save Offer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

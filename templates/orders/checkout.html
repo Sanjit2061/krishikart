@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">💳 <span class="text-success">Checkout</span></h2>
+    <div class="row">
+        <div class="col-md-7">
+            <form method="POST" class="bg-white rounded-4 shadow-sm p-4">
+                {% csrf_token %}
+                <h5 class="mb-3">Delivery Details</h5>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Delivery Address</label>
+                    <textarea name="address" class="form-control" rows="3" required>{{ user.address }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Phone Number</label>
+                    <input type="text" name="phone" class="form-control" value="{{ user.phone }}" required>
+                </div>
+
+                <h5 class="mb-3 mt-4">Payment Method</h5>
+                <div class="form-check mb-2 p-3 border rounded-3">
+                    <input class="form-check-input" type="radio" name="payment_method" value="cod" id="cod" checked>
+                    <label class="form-check-label" for="cod">
+                        <i class="fas fa-money-bill-wave text-success me-2"></i> Cash on Delivery
+                    </label>
+                </div>
+                <div class="form-check mb-3 p-3 border rounded-3">
+                    <input class="form-check-input" type="radio" name="payment_method" value="esewa" id="esewa">
+                    <label class="form-check-label" for="esewa">
+                        <img src="https://esewa.com.np/common/images/esewa_logo.png" alt="eSewa" style="height: 24px;" onerror="this.style.display='none'">
+                        Pay with eSewa
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 rounded-pill py-2">Place Order</button>
+            </form>
+        </div>
+        <div class="col-md-5">
+            <div class="bg-white rounded-4 shadow-sm p-4">
+                <h5 class="mb-3">Order Summary</h5>
+                {% for item in cart.items.all %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                    <span>Rs {{ item.subtotal }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <span>Rs {{ cart.total }}</span>
+                </div>
+                {% if coupon_code %}
+                <div class="d-flex justify-content-between mb-2 text-success">
+                    <span>Coupon ({{ coupon_code }})</span>
+                    <span>- Rs {{ discount_amount }}</span>
+                </div>
+                {% endif %}
+                <hr>
+                <div class="d-flex justify-content-between fw-bold fs-5">
+                    <span>Total</span>
+                    <span class="text-success">Rs {{ final_total }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

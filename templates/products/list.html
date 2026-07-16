@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Shop - KrishiKart{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="bg-white p-3 rounded-4 shadow-sm mb-3">
+                <form method="GET">
+                    {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                    <div class="input-group">
+                        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search products...">
+                        <button class="btn btn-success" type="submit"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-white p-3 rounded-4 shadow-sm">
+                <h6 class="fw-bold mb-3">Categories</h6>
+                <a href="{% url 'product_list' %}" class="d-block text-decoration-none py-1 {% if not selected_category %}text-success fw-bold{% else %}text-dark{% endif %}">All Products</a>
+                {% for cat in categories %}
+                <a href="{% url 'product_list' %}?category={{ cat.slug }}" class="d-block text-decoration-none py-1 {% if selected_category == cat.slug %}text-success fw-bold{% else %}text-dark{% endif %}">
+                    <i class="fas {{ cat.icon }} me-2"></i>{{ cat.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-9">
+            <h2 class="mb-4">🌱 All <span class="text-success">Products</span></h2>
+            {% if query %}<p class="text-muted">Showing results for "{{ query }}"</p>{% endif %}
+            <div class="row g-4">
+                {% for product in page_obj %}
+                <div class="col-md-4">
+                    <div class="product-card rounded-4 shadow-sm overflow-hidden h-100">
+                        <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark">
+                            <div class="product-image">
+                                {% if product.image_url %}
+                                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <i class="fas fa-box fa-4x text-muted"></i>
+                                {% endif %}
+                                {% if product.is_organic %}
+                                <span class="badge bg-success position-absolute top-0 start-0 m-2">Organic</span>
+                                {% endif %}
+                            </div>
+                            <div class="product-body p-3">
+                                <h6 class="fw-bold mb-0">{{ product.name }}</h6>
+                                <small class="text-muted">{{ product.category.name }}</small>
+                                <div class="d-flex align-items-baseline gap-2 mt-2">
+                                    <span class="text-success fw-bold fs-5">Rs {{ product.price }}</span>
+                                    {% if product.old_price %}
+                                    <span class="text-muted text-decoration-line-through small">Rs {{ product.old_price }}</span>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">per {{ product.unit }} · {{ product.stock }} in stock</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">No products found.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">Previous</a></li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

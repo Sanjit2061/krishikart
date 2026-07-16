@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Farmer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🌾 Farmer <span class="text-success">Dashboard</span></h2>
+        <a href="{% url 'farmer_product_add' %}" class="btn btn-success rounded-pill"><i class="fas fa-plus me-1"></i> Add Product</a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="bg-white rounded-4 shadow-sm p-4 text-center">
+                <h3 class="text-success fw-bold">{{ product_count }}</h3>
+                <p class="text-muted mb-0">Your Products</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-white rounded-4 shadow-sm p-4 text-center">
+                <h3 class="text-success fw-bold">Rs {{ total_sales }}</h3>
+                <p class="text-muted mb-0">Total Sales</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-white rounded-4 shadow-sm p-4 text-center">
+                <h3 class="text-success fw-bold">{{ total_units_sold }}</h3>
+                <p class="text-muted mb-0">Units Sold</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-4 shadow-sm p-4">
+        <h5 class="mb-3">Your Products</h5>
+        <table class="table align-middle">
+            <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category.name }}</td>
+                    <td>Rs {{ product.price }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td>
+                        {% if product.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Hidden</span>{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'farmer_product_edit' product.id %}" class="btn btn-sm btn-outline-success"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'farmer_product_delete' product.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?')"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-4">You haven't added any products yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

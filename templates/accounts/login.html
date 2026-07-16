@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Login - KrishiKart{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h3 class="text-center mb-4">
+                        <span class="brand-icon">🌾</span> Welcome Back
+                    </h3>
+                    <p class="text-center text-muted mb-4">Sign in to continue shopping fresh.</p>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Username</label>
+                            <input type="text" name="username" class="form-control form-control-lg"
+                                   placeholder="Enter your username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Password</label>
+                            <input type="password" name="password" class="form-control form-control-lg"
+                                   placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                        </button>
+                    </form>
+
+                    <p class="text-center mt-4">
+                        <a href="{% url 'register' %}" class="text-decoration-none">
+                            <i class="fas fa-user-plus me-1"></i> New here? Create an account
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

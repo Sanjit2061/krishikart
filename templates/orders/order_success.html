@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Order Confirmed{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+    <h2>Order Confirmed! 🎉</h2>
+    <p class="text-muted">Order Number: <strong>{{ order.order_number }}</strong></p>
+    <p class="text-muted">Total: <strong class="text-success">Rs {{ order.total_amount }}</strong></p>
+    <p class="text-muted">Status: <span class="badge bg-warning text-dark">{{ order.get_status_display }}</span></p>
+    <a href="{% url 'product_list' %}" class="btn btn-success rounded-pill mt-3">Continue Shopping</a>
+    <a href="{% url 'my_orders' %}" class="btn btn-outline-success rounded-pill mt-3">View My Orders</a>
+</div>
+{% endblock %}

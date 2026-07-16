@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row g-5">
+        <div class="col-md-6">
+            <div class="product-detail-image rounded-4 overflow-hidden shadow-sm">
+                {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-100">
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center bg-light" style="height:400px;">
+                        <i class="fas fa-box fa-5x text-muted"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            {% if product.is_organic %}<span class="badge bg-success mb-2">Organic</span>{% endif %}
+            <h2 class="fw-bold">{{ product.name }}</h2>
+            <p class="text-muted">{{ product.category.name }} · Sold by {{ product.farmer.username }}</p>
+
+            <div class="d-flex align-items-baseline gap-3 my-3">
+                <span class="text-success fw-bold fs-2">Rs {{ product.price }}</span>
+                {% if product.old_price %}
+                <span class="text-muted text-decoration-line-through fs-5">Rs {{ product.old_price }}</span>
+                {% endif %}
+                <span class="text-muted">per {{ product.unit }}</span>
+            </div>
+
+            <p>{{ product.description }}</p>
+
+            <p class="text-muted">
+                {% if product.stock > 0 %}
+                    <i class="fas fa-check-circle text-success"></i> {{ product.stock }} available
+                {% else %}
+                    <i class="fas fa-times-circle text-danger"></i> Out of stock
+                {% endif %}
+            </p>
+
+            {% if user.is_authenticated %}
+                {% if product.stock > 0 %}
+                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-success btn-lg rounded-pill px-5">
+                    <i class="fas fa-cart-plus me-2"></i> Add to Cart
+                </a>
+                {% else %}
+                <button class="btn btn-secondary btn-lg rounded-pill px-5" disabled>Out of Stock</button>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-success btn-lg rounded-pill px-5">Sign in to Buy</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if related_products %}
+    <div class="mt-5">
+        <h4 class="mb-4">You might also like</h4>
+        <div class="row g-4">
+            {% for rp in related_products %}
+            <div class="col-md-3">
+                <a href="{% url 'product_detail' rp.slug %}" class="text-decoration-none text-dark">
+                    <div class="product-card rounded-4 shadow-sm overflow-hidden h-100">
+                        <div class="product-image">
+                            {% if rp.image_url %}<img src="{{ rp.image_url }}" alt="{{ rp.name }}">{% endif %}
+                        </div>
+                        <div class="product-body p-3">
+                            <h6 class="fw-bold mb-0">{{ rp.name }}</h6>
+                            <span class="text-success fw-bold">Rs {{ rp.price }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

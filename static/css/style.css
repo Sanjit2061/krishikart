@@ -1,0 +1,242 @@
+:root {
+    --primary-color: #2E7D32;
+    --success-color: #2E7D32;
+    --light-bg: #F5F7F0;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 30px rgba(46, 125, 50, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #F9FBF8;
+    color: #1B2A1E;
+}
+
+/* Brand */
+.brand-icon {
+    background: var(--primary-color);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 50%;
+    display: inline-block;
+    font-size: 1.2rem;
+}
+
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--primary-color) !important;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    padding: 60px 0;
+    border-radius: 0 0 40px 40px;
+    margin-bottom: 30px;
+}
+
+.hero-badge .badge {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+.hero-stats {
+    border: 1px solid rgba(46, 125, 50, 0.1);
+}
+
+/* Category Cards */
+.category-card {
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.category-card i {
+    color: var(--primary-color);
+}
+
+/* Product Cards */
+.product-card {
+    background: white;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.product-image {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    position: relative;
+}
+
+.product-image i {
+    color: #c8c8c8;
+}
+
+.product-body h6 {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+/* Buttons */
+.btn-success {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-success:hover {
+    background: #1B5E20;
+    border-color: #1B5E20;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-outline-success {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-success:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.15);
+}
+
+/* Card Styles */
+.card {
+    border: none;
+}
+
+.card .form-control-lg {
+    padding: 12px 20px;
+}
+
+/* Footer */
+.footer {
+    background: #1B2A1E !important;
+}
+
+.footer a {
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer a:hover {
+    color: white !important;
+}
+
+/* Utilities */
+.min-vh-50 {
+    min-height: 50vh;
+}
+
+.text-success {
+    color: var(--primary-color) !important;
+}
+
+.bg-success {
+    background-color: var(--primary-color) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 30px 0;
+    }
+    
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .category-card {
+        padding: 15px !important;
+    }
+    
+    .category-card i {
+        font-size: 2rem !important;
+    }
+}
+
+.product-image {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cart-thumb {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cart-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-badge .badge {
+    background-color: #86f591 !important;
+    color: #1B5E20 !important;
+    border: 1px solid #A5D6A7;
+}
+
+/* Footer text visibility fix */
+.footer,
+.footer p,
+.footer h5,
+.footer h6 {
+    color: #ffffff !important;
+}
+
+.footer a.text-muted,
+.footer .text-muted {
+    color: #dee0de !important;
+}
+
+.footer a:hover {
+    color: #009107 !important;
+}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Redirecting to eSewa{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <img src="https://esewa.com.np/common/images/esewa_logo.png" alt="eSewa" style="height: 60px;" class="mb-4" onerror="this.style.display='none'">
+    <h4>Redirecting you to eSewa...</h4>
+    <p class="text-muted">Please wait, do not close this window.</p>
+    <div class="spinner-border text-success mt-3" role="status"></div>
+
+    <form id="esewaForm" method="POST" action="{{ esewa_url }}" class="d-none">
+        <input type="hidden" name="amount" value="{{ total_amount }}">
+        <input type="hidden" name="tax_amount" value="0">
+        <input type="hidden" name="total_amount" value="{{ total_amount }}">
+        <input type="hidden" name="transaction_uuid" value="{{ transaction_uuid }}">
+        <input type="hidden" name="product_code" value="{{ product_code }}">
+        <input type="hidden" name="product_service_charge" value="0">
+        <input type="hidden" name="product_delivery_charge" value="0">
+        <input type="hidden" name="success_url" value="{{ success_url }}">
+        <input type="hidden" name="failure_url" value="{{ failure_url }}">
+        <input type="hidden" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
+        <input type="hidden" name="signature" value="{{ signature }}">
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    document.getElementById('esewaForm').submit();
+</script>
+{% endblock %}
+{% endblock %}
