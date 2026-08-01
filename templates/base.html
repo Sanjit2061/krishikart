@@ -11,9 +11,17 @@
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Apply saved theme before page renders, to avoid flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('krishikart-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body data-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}">
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
@@ -26,11 +34,15 @@
                 <ul class="navbar-nav me-auto ms-4">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}">Shop</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Farmers</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'farmer_list' %}">Farmers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
                 </ul>
 
                 <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle me-2" id="themeToggleBtn" title="Toggle dark/light mode">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+
                     {% if user.is_authenticated %}
                         {% if user.is_staff %}
                         <a href="{% url 'dashboard_home' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 me-2">
@@ -42,12 +54,21 @@
                             <i class="fas fa-tractor"></i> My Farm
                         </a>
                         {% endif %}
-                        <span class="me-3 text-muted"><i class="fas fa-user-circle me-1"></i> {{ user.username }}</span>
-                        
-                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 me-2" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                           Logout
-                        </button>
 
+                        <div class="dropdown me-2">
+                            <button class="btn btn-light btn-sm rounded-pill px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i> {{ user.username }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'my_orders' %}"><i class="fas fa-box me-2"></i>My Orders</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     {% else %}
                         <a href="{% url 'login' %}" class="btn btn-success btn-sm rounded-pill px-3 me-2">Sign In</a>
                         <a href="{% url 'register' %}" class="btn btn-outline-success btn-sm rounded-pill px-3">Sign Up</a>
@@ -79,11 +100,11 @@
     <footer class="footer bg-dark text-white py-5 mt-5">
         <div class="container">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <h5>🌾 KrishiKart</h5>
-                    <p class="text-muted">Fresh from farm to your home. Connecting local farmers directly with customers.</p>
+                    <p class="text-muted">Fresh from farm to your home. Connecting local farmers directly with customers across Nepal.</p>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <h6>Shop</h6>
                     <a href="{% url 'product_list' %}" class="text-muted d-block">Vegetables</a>
                     <a href="{% url 'product_list' %}" class="text-muted d-block">Fruits</a>
@@ -92,15 +113,17 @@
                 </div>
                 <div class="col-md-3">
                     <h6>For Farmers</h6>
-                    <a href="{% url 'register' %}" class="text-muted d-block">Become a Farmer</a>
-                    <a href="#" class="text-muted d-block">Resources</a>
+                    <a href="{% url 'register' %}" class="text-muted d-block"
+                       {% if user.is_authenticated %}onclick="return confirm('You are currently logged in as {{ user.username }}. Continuing will log you out so you can register a new farmer account. Continue?')"{% endif %}>Become a Farmer</a>
+                    <a href="{% url 'farmer_list' %}" class="text-muted d-block">Meet Our Farmers</a>
+                    <a href="{% url 'about' %}" class="text-muted d-block">Resources</a>
                 </div>
                 <div class="col-md-3">
                     <h6>Company</h6>
-                    <a href="#" class="text-muted d-block">About</a>
-                    <a href="#" class="text-muted d-block">Contact</a>
-                    <a href="#" class="text-muted d-block">Privacy</a>
-                    <a href="#" class="text-muted d-block">Terms</a>
+                    <a href="{% url 'about' %}" class="text-muted d-block">About Us</a>
+                    <a href="{% url 'contact' %}" class="text-muted d-block">Contact</a>
+                    <a href="{% url 'privacy_policy' %}" class="text-muted d-block">Privacy Policy</a>
+                    <a href="{% url 'terms_of_service' %}" class="text-muted d-block">Terms of Service</a>
                 </div>
             </div>
             <hr>
@@ -109,6 +132,22 @@
             </div>
         </div>
     </footer>
+
+    <!-- Sticky floating cart bar -->
+    {% if nav_cart_count %}
+    <div class="sticky-cart-bar">
+        <div class="container d-flex justify-content-center align-items-center flex-wrap gap-3">
+            <div class="text-center">
+                <i class="fas fa-shopping-cart me-2"></i>
+                <strong>{{ nav_cart_count }}</strong> item(s) in your cart
+            </div>
+            <a href="{% url 'view_cart' %}" class="btn btn-outline-dark rounded-pill px-3">View Cart</a>
+            <a href="{% url 'checkout' %}" class="btn btn-lg btn-dark rounded-pill px-5 fw-bold">
+                <i class="fas fa-arrow-right me-2"></i>Checkout Now
+            </a>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Logout Confirmation Modal -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
@@ -130,15 +169,75 @@
         </div>
     </div>
 
+  <!-- Session Ended Modal (shown when back/forward reveals a stale logged-in page
+         after the real session has actually ended, e.g. logged out) -->
+    <div class="modal fade" id="sessionEndedModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-body text-center p-4">
+                    <i class="fas fa-user-lock fa-3x text-warning mb-3"></i>
+                    <h5 class="mb-2">You've been logged out</h5>
+                    <p class="text-muted mb-4">Your session has ended. Please sign in again to continue where you left off.</p>
+                    <a href="{% url 'login' %}" class="btn btn-success rounded-pill px-4">Go to Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
+        // On back/forward navigation, quietly ask the server whether the real
+        // session still matches what this cached page thinks it is.
+        // - If the cached page thought the user was logged in but they've
+        //   actually logged out since (e.g. via the logout modal, or in
+        //   another tab), show a clear "You've been logged out" modal that
+        //   points straight to sign-in — instead of silently reloading into
+        //   some arbitrary page, or showing a stale "still logged in" view.
+        // - Any other mismatch (rare) is corrected with a normal reload.
         window.addEventListener('pageshow', function (event) {
-            if (event.persisted) {
-                window.location.reload();
-            }
+            var cameFromCache = event.persisted ||
+                (window.performance && window.performance.navigation && window.performance.navigation.type === 2);
+            if (!cameFromCache) return;
+
+            var pageThinksAuthenticated = document.body.getAttribute('data-authenticated') === 'true';
+
+            fetch('{% url "session_status" %}', { credentials: 'same-origin', cache: 'no-store' })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (pageThinksAuthenticated && !data.authenticated) {
+                        var modalEl = document.getElementById('sessionEndedModal');
+                        var modal = new bootstrap.Modal(modalEl);
+                        modal.show();
+                    } else if (data.authenticated !== pageThinksAuthenticated) {
+                        window.location.reload();
+                    }
+                })
+                .catch(function () {
+                    window.location.reload();
+                });
+        });
+
+        // Dark mode toggle
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+
+        function updateThemeIcon() {
+            const current = document.documentElement.getAttribute('data-theme');
+            themeIcon.className = current === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        updateThemeIcon();
+
+        themeToggleBtn.addEventListener('click', function() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('krishikart-theme', next);
+            updateThemeIcon();
         });
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

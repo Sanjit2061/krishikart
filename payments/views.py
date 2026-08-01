@@ -10,6 +10,8 @@ from django.contrib import messages
 from orders.models import Order
 from .models import Payment
 
+from orders.models import Order, Cart
+
 
 def generate_esewa_signature(total_amount, transaction_uuid, product_code):
     message = f"total_amount={total_amount},transaction_uuid={transaction_uuid},product_code={product_code}"
@@ -22,8 +24,26 @@ def generate_esewa_signature(total_amount, transaction_uuid, product_code):
 def esewa_initiate(request, order_number):
     order = get_object_or_404(Order, order_number=order_number, user=request.user)
 
+    # If this order was already paid (e.g. user pressed Back and landed
+    # somewhere in this flow again), don't resubmit to eSewa — just send
+    # them straight home. No repeated payment screens, no reprocessing.
+    if order.payment_status == 'paid':
+        messages.info(request, 'This order has already been paid. Redirecting you to the homepage.')
+        return redirect('home')
+
+    if order.status == 'cancelled':
+        messages.info(request, 'This order was cancelled. Please start a fresh checkout if you\'d like to order again.')
+        return redirect('view_cart')
+
+    if order.total_amount is None or order.total_amount <= 0:
+        messages.error(request, 'This order has no payable amount, so eSewa cannot process it. Please start checkout again.')
+        order.status = 'cancelled'
+        order.payment_status = 'cancelled'
+        order.save()
+        return redirect('view_cart')
+
     transaction_uuid = f"{order.order_number}-{uuid.uuid4().hex[:8]}"
-    total_amount = str(order.total_amount)
+    total_amount = f"{order.total_amount:.2f}"
 
     signature = generate_esewa_signature(total_amount, transaction_uuid, settings.ESEWA_MERCHANT_CODE)
 
@@ -73,6 +93,13 @@ def esewa_success(request):
         messages.error(request, 'Payment record not found.')
         return redirect('home')
 
+    # Already processed before (e.g. user hit Back/refresh on this exact
+    # URL, or re-followed an old link) — do NOT reduce stock or clear the
+    # cart a second time. Just send them home with a friendly note.
+    if payment.status == 'complete':
+        messages.info(request, 'Payment already completed for this order. Redirecting you to the homepage.')
+        return redirect('home')
+
     if status == 'COMPLETE':
         payment.status = 'complete'
         payment.esewa_ref_id = ref_id
@@ -83,8 +110,22 @@ def esewa_success(request):
         order.status = 'paid'
         order.save()
 
+        # Now that payment is confirmed, reduce stock and clear the cart
+        for item in order.items.all():
+            product = item.product
+            product.stock = max(product.stock - item.quantity, 0)
+            product.save()
+
+        cart = Cart.objects.filter(user=order.user).first()
+        if cart:
+            cart.items.all().delete()
+
+        request.session.pop('coupon_code', None)
+        request.session.pop('coupon_discount', None)
+
         messages.success(request, 'Payment successful via eSewa!')
         return redirect('order_success', order_number=order.order_number)
+
     else:
         payment.status = 'failed'
         payment.save()
@@ -93,5 +134,5 @@ def esewa_success(request):
 
 
 def esewa_failure(request):
-    messages.error(request, 'Payment was cancelled or failed. Please try again.')
+    messages.error(request, 'Payment was cancelled or not completed. Your cart items are safe — you can retry payment or continue shopping.')
     return redirect('view_cart')

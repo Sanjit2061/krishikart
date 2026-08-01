@@ -1,7 +1,22 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Product, Category
+
+
+from django.contrib import messages
+from .models import NewsletterSubscriber
+
+def subscribe_newsletter(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        if email:
+            obj, created = NewsletterSubscriber.objects.get_or_create(email=email)
+            if created:
+                messages.success(request, "You're subscribed! Expect weekly harvest updates and exclusive discount codes in your inbox soon.")
+            else:
+                messages.info(request, "You're already subscribed — more updates coming your way soon!")
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 
 def home(request):
@@ -49,3 +64,15 @@ def product_detail(request, slug):
         'product': product,
         'related_products': related_products,
     })
+
+def about(request):
+    return render(request, 'about.html')
+
+def contact(request):
+    return render(request, 'contact.html')
+
+def privacy_policy(request):
+    return render(request, 'privacy_policy.html')
+
+def terms_of_service(request):
+    return render(request, 'terms_of_service.html')

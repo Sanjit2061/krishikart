@@ -4,14 +4,45 @@
 {% block content %}
 <div class="container my-5">
     <h2 class="mb-4">📦 My <span class="text-success">Orders</span></h2>
+
+    <div class="alert alert-light border small mb-4">
+        <strong>Status guide:</strong>
+        <span class="badge bg-warning text-dark">Pending</span> payment not yet completed &nbsp;
+        <span class="badge bg-success">Paid</span> payment confirmed &nbsp;
+        <span class="badge bg-secondary">Cash on Delivery</span> pay when it arrives
+    </div>
+
     {% for order in orders %}
     <div class="bg-white rounded-4 shadow-sm p-4 mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
             <h6 class="fw-bold mb-0">Order #{{ order.order_number }}</h6>
-            <span class="badge bg-success">{{ order.get_status_display }}</span>
+            {% if order.payment_method == 'esewa' and order.payment_status == 'pending' %}
+                <span class="badge bg-warning text-dark">Payment Pending</span>
+            {% elif order.payment_status == 'paid' %}
+                <span class="badge bg-success">Paid</span>
+            {% elif order.payment_status == 'cod_pending' %}
+                <span class="badge bg-secondary">Cash on Delivery</span>
+            {% elif order.payment_status == 'cancelled' %}
+                <span class="badge bg-danger">Cancelled</span>
+            {% else %}
+                <span class="badge bg-light text-dark">{{ order.get_status_display }}</span>
+            {% endif %}
         </div>
-        <p class="text-muted small mb-1">Placed on {{ order.created_at|date:"M d, Y" }}</p>
-        <p class="mb-0">Total: <strong class="text-success">Rs {{ order.total_amount }}</strong> — {{ order.items.count }} item(s)</p>
+        <p class="text-muted small mb-1">Placed on {{ order.created_at|date:"M d, Y \a\t h:i A" }}</p>
+        <p class="mb-2">Total: <strong class="text-success">Rs {{ order.total_amount }}</strong> — {{ order.items.count }} item(s)</p>
+
+        {% if order.payment_method == 'esewa' and order.payment_status == 'pending' %}
+        <div class="d-flex gap-2 mt-2">
+            <a href="{% url 'esewa_initiate' order.order_number %}" class="btn btn-sm btn-success rounded-pill">Continue Payment</a>
+            <a href="{% url 'cancel_order' order.order_number %}" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Cancel this order?')">Cancel</a>
+        </div>
+        {% endif %}
+
+        <div class="border-top mt-3 pt-3">
+            <a href="{% url 'order_statement' order.order_number %}" class="btn btn-sm btn-outline-dark rounded-pill">
+                <i class="fas fa-file-invoice me-1"></i> View Statement
+            </a>
+        </div>
     </div>
     {% empty %}
     <p class="text-muted text-center py-5">No orders yet.</p>

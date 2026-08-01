@@ -5,6 +5,34 @@
 <div class="container my-5">
     <h2 class="mb-4">🛒 Your <span class="text-success">Cart</span></h2>
 
+    {% if pending_payment_order %}
+    <div class="bg-white rounded-4 shadow-sm p-4 mb-4 border border-warning">
+        <div class="d-flex align-items-center gap-3">
+            <i class="fas fa-clock fa-2x text-warning"></i>
+            <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">You have an unfinished payment</h6>
+                <p class="text-muted mb-0 small">Order #{{ pending_payment_order.order_number }} — Rs {{ pending_payment_order.total_amount }} — payment wasn't completed.</p>
+            </div>
+            <a href="{% url 'esewa_initiate' pending_payment_order.order_number %}" class="btn btn-success rounded-pill">Continue Payment</a>
+            <a href="{% url 'cancel_order' pending_payment_order.order_number %}" class="btn btn-outline-danger rounded-pill" onclick="return confirm('Cancel this order?')">Cancel Order</a>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if is_first_time_customer %}
+    <div class="bg-success bg-opacity-10 border border-success rounded-4 p-3 mb-4 text-center">
+        <i class="fas fa-gift text-success me-2"></i>
+        <strong>Welcome!</strong> Ask about first-order discount codes — check with our team or look for a "WELCOME" coupon to save on your first purchase.
+    </div>
+    {% elif active_offers %}
+    <div class="bg-warning bg-opacity-10 border border-warning rounded-4 p-3 mb-4">
+        <strong><i class="fas fa-tags me-2"></i>Current offers for you:</strong>
+        {% for offer in active_offers %}
+        <span class="badge bg-success me-2">{{ offer.code }} — {{ offer.discount_percent }}% off (valid until {{ offer.valid_until }})</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     {% if cart.items.all %}
     <div class="row">
         <div class="col-md-8">
@@ -39,7 +67,7 @@
                     {% csrf_token %}
                     <label class="form-label small fw-semibold">Have a coupon?</label>
                     <div class="input-group">
-                        <input type="text" name="coupon_code" class="form-control form-control-sm" placeholder="Enter code">
+                        <input type="text" name="coupon_code" class="form-control form-control-sm" placeholder="Enter code" value="{{ coupon_code|default:'' }}">
                         <button type="submit" class="btn btn-outline-success btn-sm">Apply</button>
                     </div>
                 </form>
@@ -48,16 +76,22 @@
                     <span class="text-muted">Items ({{ cart.item_count }})</span>
                     <span>Rs {{ cart.total }}</span>
                 </div>
+                {% if coupon_code %}
+                <div class="d-flex justify-content-between mb-2 text-success">
+                    <span>Coupon ({{ coupon_code }})</span>
+                    <span>- Rs {{ discount_amount }}</span>
+                </div>
+                {% endif %}
                 <hr>
                 <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
                     <span>Total</span>
-                    <span class="text-success">Rs {{ cart.total }}</span>
+                    <span class="text-success">Rs {{ final_total }}</span>
                 </div>
                 <a href="{% url 'checkout' %}" class="btn btn-success w-100 rounded-pill">Proceed to Checkout</a>
             </div>
         </div>
     </div>
-    {% else %}
+    {% elif not pending_payment_order %}
     <div class="text-center py-5">
         <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
         <p class="text-muted">Your cart is empty.</p>

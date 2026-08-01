@@ -5,6 +5,7 @@ from django.core.exceptions import PermissionDenied
 from products.models import Product, Category
 from orders.models import OrderItem
 
+from accounts.models import User
 
 def farmer_required(user):
     if not user.is_farmer:
@@ -83,3 +84,12 @@ def farmer_product_delete(request, product_id):
     product.delete()
     messages.info(request, 'Product deleted.')
     return redirect('farmer_dashboard')
+
+def farmer_list(request):
+    farmers = User.objects.filter(is_farmer=True).select_related('farmer_profile')
+    farmer_data = []
+    for farmer in farmers:
+        product_count = Product.objects.filter(farmer=farmer, is_active=True).count()
+        profile = getattr(farmer, 'farmer_profile', None)
+        farmer_data.append({'user': farmer, 'profile': profile, 'product_count': product_count})
+    return render(request, 'farmers/list.html', {'farmer_data': farmer_data})

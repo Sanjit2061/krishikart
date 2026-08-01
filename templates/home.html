@@ -21,9 +21,13 @@
                     <a href="{% url 'product_list' %}" class="btn btn-success btn-lg px-5 rounded-pill">
                         <i class="fas fa-shopping-bag me-2"></i> Shop Now
                     </a>
-                    <a href="{% url 'register' %}" class="btn btn-outline-success btn-lg px-5 rounded-pill">
+                    
+                    <a href="{% url 'register' %}" class="btn btn-outline-success btn-lg px-5 rounded-pill"
+                        {% if user.is_authenticated %}onclick="return confirm('You are currently logged in as {{ user.username }}. Continuing will log you out so you can register a new farmer account. Continue?')"{% endif %}>
                         <i class="fas fa-user-plus me-2"></i> Become a Seller
                     </a>
+
+
                 </div>
                 <div class="mt-4 d-flex gap-4 flex-wrap">
                     <div><span class="fw-bold text-success">Free delivery</span> <span class="text-muted">over Rs 1,500</span></div>
@@ -135,9 +139,13 @@
                     Sell your harvest directly to thousands of customers.<br>
                     Keep more of what you grow.
                 </p>
-                <a href="{% url 'register' %}" class="btn btn-success btn-lg rounded-pill">
+                
+                <a href="{% url 'register' %}" class="btn btn-success btn-lg rounded-pill"
+                    {% if user.is_authenticated %}onclick="return confirm('You are currently logged in as {{ user.username }}. Continuing will log you out so you can register a new farmer account. Continue?')"{% endif %}>
                     <i class="fas fa-rocket me-2"></i> Start Selling
                 </a>
+
+
             </div>
             <div class="col-md-4">
                 <div class="bg-white p-4 rounded-4 shadow-sm text-center">
@@ -149,16 +157,41 @@
     </div>
 </section>
 
+
 <section class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
             <h3>📬 Get <span class="text-success">Harvest Updates</span></h3>
-            <p class="text-muted">Be the first to know about new arrivals and seasonal deals.</p>
-            <div class="input-group mx-auto" style="max-width: 500px;">
-                <input type="email" class="form-control form-control-lg" placeholder="your@email.com">
-                <button class="btn btn-success btn-lg">Subscribe</button>
-            </div>
+            <p class="text-muted">Subscribe to get weekly notifications on new arrivals, seasonal deals, and exclusive discount codes sent to your email.</p>
+            <form method="POST" action="{% url 'subscribe_newsletter' %}" class="input-group mx-auto" style="max-width: 500px;">
+                {% csrf_token %}
+                <input type="email" name="email" class="form-control form-control-lg" placeholder="your@email.com" required>
+                <button type="submit" class="btn btn-success btn-lg">Subscribe</button>
+            </form>
         </div>
     </div>
 </section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Home is the "edge" of the logged-in area: pressing Back from here
+    // would normally take you out of the app, so ask for logout
+    // confirmation first (same modal as the Logout button) rather than
+    // silently leaving. This only runs on the Home page.
+    {% if user.is_authenticated %}
+    (function () {
+        history.pushState({ kkHomeGuard: true }, '', location.href);
+
+        window.addEventListener('popstate', function () {
+            history.pushState({ kkHomeGuard: true }, '', location.href);
+
+            var modalEl = document.getElementById('logoutModal');
+            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        });
+    })();
+    {% endif %}
+</script>
 {% endblock %}

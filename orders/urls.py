@@ -9,5 +9,8 @@ urlpatterns = [
     path('cart/apply-coupon/', views.apply_coupon, name='apply_coupon'),
     path('checkout/', views.checkout, name='checkout'),
     path('order/success/<str:order_number>/', views.order_success, name='order_success'),
+    path('order/statement/<str:order_number>/', views.order_statement, name='order_statement'),
+    path('order/receipt/<str:order_number>/', views.download_receipt, name='download_receipt'),
+    path('order/cancel/<str:order_number>/', views.cancel_order, name='cancel_order'),
     path('my-orders/', views.my_orders, name='my_orders'),
 ]

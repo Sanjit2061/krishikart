@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Statement — {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 700px;">
+    <a href="{% url 'my_orders' %}" class="btn btn-outline-secondary btn-sm rounded-pill mb-4">
+        <i class="fas fa-arrow-left me-1"></i> Back to My Orders
+    </a>
+
+    <div class="bg-white rounded-4 shadow-sm p-4 p-md-5">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">🌾 KrishiKart Statement</h4>
+                <p class="text-muted mb-0">Order #{{ order.order_number }}</p>
+            </div>
+            {% if order.payment_status == 'paid' %}
+                <span class="badge bg-success fs-6">Paid</span>
+            {% elif order.payment_status == 'pending' %}
+                <span class="badge bg-warning text-dark fs-6">Payment Pending</span>
+            {% elif order.payment_status == 'cod_pending' %}
+                <span class="badge bg-secondary fs-6">Cash on Delivery</span>
+            {% elif order.payment_status == 'cancelled' %}
+                <span class="badge bg-danger fs-6">Cancelled</span>
+            {% else %}
+                <span class="badge bg-light text-dark fs-6">{{ order.get_status_display }}</span>
+            {% endif %}
+        </div>
+
+        <div class="row small mb-4">
+            <div class="col-6 text-muted">Order Date</div>
+            <div class="col-6 text-end">{{ order.created_at|date:"M d, Y \a\t h:i A" }}</div>
+            <div class="col-6 text-muted">Payment Method</div>
+            <div class="col-6 text-end">{{ order.payment_method|upper }}</div>
+            <div class="col-6 text-muted">Delivery Address</div>
+            <div class="col-6 text-end">{{ order.shipping_address|default:"-" }}</div>
+        </div>
+
+        {% if payment %}
+        <hr>
+        <h6 class="fw-bold mb-3">💳 Payment Details</h6>
+        <div class="row small mb-4">
+            <div class="col-6 text-muted">Reference Unique ID</div>
+            <div class="col-6 text-end">{{ payment.transaction_uuid }}</div>
+            <div class="col-6 text-muted">Transaction Code</div>
+            <div class="col-6 text-end">{{ payment.esewa_ref_id|default:"—" }}</div>
+            <div class="col-6 text-muted">Paid On</div>
+            <div class="col-6 text-end">{{ payment.created_at|date:"M d, Y \a\t h:i A" }}</div>
+        </div>
+        {% endif %}
+
+        <hr>
+        <h6 class="fw-bold mb-3">Order Items</h6>
+        <table class="table table-sm">
+            <thead>
+                <tr class="text-muted small">
+                    <th>Product</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-end">Rs {{ item.price }}</td>
+                    <td class="text-end">Rs {{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td colspan="3" class="text-end">Grand Total</td>
+                    <td class="text-end">Rs {{ order.total_amount }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'download_receipt' order.order_number %}" class="btn btn-danger rounded-pill px-4 shadow-sm">
+                <i class="fas fa-file-download me-2"></i>Download Statement (PDF)
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
