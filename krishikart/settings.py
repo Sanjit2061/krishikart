@@ -5,8 +5,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-your-secret-key-change-this'
 DEBUG = True
-#ALLOWED_HOSTS = ['sanjit2061.pythonanywhere.com', 'localhost', '127.0.0.1']
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['sanjit2061.pythonanywhere.com', 'localhost', '127.0.0.1']
+#ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -100,8 +100,8 @@ ESEWA_SECRET_KEY = '8gBm/:&EnhH.1/q'
 ESEWA_PAYMENT_URL = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form'
 ESEWA_STATUS_CHECK_URL = 'https://rc.esewa.com.np/api/epay/transaction/status/'
 
-SITE_URL = 'http://127.0.0.1:8000'
-#SITE_URL = 'https://sanjit2061.pythonanywhere.com'
+#SITE_URL = 'http://127.0.0.1:8000'
+SITE_URL = 'https://sanjit2061.pythonanywhere.com'
 
 # ==========================
 # Email Configuration
