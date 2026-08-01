@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'payments',
     'farmers',
     'admin_dashboard',
+    'anymail',
 ]
 
 MIDDLEWARE = [
@@ -102,5 +103,20 @@ ESEWA_STATUS_CHECK_URL = 'https://rc.esewa.com.np/api/epay/transaction/status/'
 SITE_URL = 'http://127.0.0.1:8000'
 #SITE_URL = 'https://sanjit2061.pythonanywhere.com'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@krishikart.com'
+# ==========================
+# Email Configuration
+# ==========================
+
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+
+if SENDGRID_API_KEY:
+    EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+
+    ANYMAIL = {
+        "SENDGRID_API_KEY": SENDGRID_API_KEY,
+    }
+else:
+    # Local development fallback
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+DEFAULT_FROM_EMAIL = "KrishiKart <noreply@krishikart.com>"
