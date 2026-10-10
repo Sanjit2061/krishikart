@@ -8,7 +8,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'sanjit2061.pythonanywhere.com',
-    'krishikart-q56e.vercel.app',
+    'krishikartel.vercel.app',
     'localhost',
     '127.0.0.1',
 ]
